@@ -68,6 +68,45 @@ def tts(message):
         bot.send_message(user_id, content)
 
 
+@bot.message_handler(commands=['stt'])
+def stt_handler(message):
+    user_id = message.from_user.id
+    bot.send_message(user_id, 'Отправь голосовое сообщение, чтобы я его распознал!')
+    bot.register_next_step_handler(message, stt)
+
+
+# Переводим голосовое сообщение в текст после команды stt
+
+def stt(message):
+    user_id = message.from_user.id
+
+    # Проверка, что сообщение действительно голосовое
+    if not message.voice:
+        return
+
+    # Считаем аудиоблоки и проверяем сумму потраченных аудиоблоков
+    stt_blocks = is_stt_block_limit(message, message.voice.duration)
+    if not stt_blocks:
+        return
+
+    file_id = message.voice.file_id  # получаем id голосового сообщения
+    file_info = bot.get_file(file_id)  # получаем информацию о голосовом сообщении
+    file = bot.download_file(file_info.file_path)  # скачиваем голосовое сообщение
+
+    # Получаем статус и содержимое ответа от SpeechKit
+    status, text = speech_to_text(file)  # преобразовываем голосовое сообщение в текст
+
+    # Если статус True - отправляем текст сообщения и сохраняем в БД, иначе - сообщение об ошибке
+    if status:
+        # Записываем сообщение и кол-во аудиоблоков в БД
+        insert_row(user_id, text, 'stt_blocks', stt_blocks)
+        bot.send_message(user_id, text, reply_to_message_id=message.id)
+        bot.send_message(user_id, 'Для нового запроса нажми /stt')
+    else:
+        bot.send_message(user_id, text)
+        bot.send_message(user_id, 'Для нового запроса нажми /stt')
+
+
 @bot.message_handler(commands=['chat'])
 @bot.message_handler(content_types=['voice'])
 def handle_voice(message):

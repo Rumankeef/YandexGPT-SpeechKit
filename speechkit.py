@@ -48,7 +48,7 @@ def text_to_speech(text: str):
     }
     data = {
         'text': text,
-        'speed': 1.1,  # Скорость чтения
+        'speed': 1.2,  # Скорость чтения
         'emotion': 'good',  # эмоциональная окраска
         'lang': 'ru-RU',  # язык текста - русский
         'voice': 'filipp',  # голос Джейн
