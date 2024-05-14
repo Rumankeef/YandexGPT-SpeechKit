@@ -1,5 +1,5 @@
 # https://github.com/Rumankeef/YandexGPT-SpeechKit
-# Не ставится на сервер
+# Не ставится на сервер и соответственно нихрена не приходит)
 from validators import *  # модуль для валидации
 from yandex_gpt import ask_gpt  # модуль для работы с GPT
 from speechkit import text_to_speech, speech_to_text
