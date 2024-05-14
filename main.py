@@ -17,17 +17,24 @@ session = requests.Session()
 
 @bot.message_handler(commands=['start'])
 def start(message):
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.row('/stt', '/tts', '/chat', '/help')
     logging.info(f"Пользователь {message.from_user.username} начал работу с ботом")
     bot.reply_to(message,
-                 "Добро пожаловать в бот с внедренным Yandex GPT! /chat для работы с нейросетью, /help если хотите узнать остальные функции бота")
+                 "Добро пожаловать в бот с внедренным Yandex GPT! /chat для работы с нейросетью, /help, если хотите узнать остальные функции бота")
 
 
 @bot.message_handler(commands=['help'])
 def send_welcome(message):
     bot.reply_to(message, """\
-После ввода команды /start введите текстом или голосовым сообщением запрос. На каждого пользователя установлено ограничение по использованию GPT
+После ввода команды /chat введите текстом или голосовым сообщением запрос. На каждого пользователя установлено ограничение по использованию GPT
+После ввода команды /tts введите текстом запрос. На каждого пользователя установлено ограничение по использованию SpeechKit
+После ввода команды /stt введите запрос голосовым сообщением. На каждого пользователя установлено ограничение по использованию SpeechKit
 Команды бота:
 /start - Начало
+/chat - Чат-бот
+/tts - text-to-speech
+/stt - speech-to-text
 \
 """)
 
@@ -108,7 +115,11 @@ def stt(message):
 
 
 @bot.message_handler(commands=['chat'])
-@bot.message_handler(content_types=['voice'])
+def tts_handler(message):
+    user_id = message.from_user.id
+    bot.send_message(user_id, 'Введите запрос текстом или голосовым сообщением')
+
+
 def handle_voice(message):
     user_id = message.from_user.id
     try:
@@ -162,7 +173,6 @@ def handle_voice(message):
 
 
 # обрабатываем текстовые сообщения
-@bot.message_handler(content_types=['text'])
 def handle_text(message):
     try:
         user_id = message.from_user.id
